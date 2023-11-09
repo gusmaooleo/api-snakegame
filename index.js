@@ -8,11 +8,12 @@ app.use(express.json());
 
 app.post('/verify', (req, res) => {
   const { name, pic_id } = req.body
+  const trim_name = name.trim()
 
   db('users')
     .select('*')
     .where({
-      user_name: name,
+      user_name: trim_name,
       pic_id: pic_id
     })
     .then((rows) => {
@@ -25,14 +26,15 @@ app.post('/verify', (req, res) => {
     .catch((error) => {
       console.error(error)
     });
-}); 
+});
 
 app.post('/push', (req, res) => {
   const { name, pic_id } = req.body
+  const trim_name = name.trim()
 
   db('users')
     .insert({
-      user_name: name,
+      user_name: trim_name,
       pic_id: pic_id
     })
     .then(() => {

@@ -45,4 +45,22 @@ app.post('/push', (req, res) => {
     });
 });
 
+app.get('/getID', (req, res) => {
+  const { name, pic_id } = req.query;
+  const trim_name = name.trim();
+
+  db('users')
+    .select('user_id')
+    .where({
+      user_name: trim_name,
+      pic_id: pic_id
+    })
+    .then((rows) => {
+      res.send(rows[0]);
+    })
+    .catch((error) => {
+      console.error(error)
+    });
+});
+
 app.listen(3001);

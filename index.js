@@ -88,8 +88,8 @@ app.post("/getMatchID", (req, res) => {
     });
 });
 
-app.post("/insertMatchValues", (req, res) => {
-  const { matchId, matchResult, matchScore, matchMoves, matchTime } = req.body;
+app.get("/insertMatchValues", (req, res) => {
+  const { matchId, matchResult, matchScore, matchMoves, matchTime } = req.query;
 
   db("matches_stats")
     .insert({
@@ -100,11 +100,57 @@ app.post("/insertMatchValues", (req, res) => {
       match_time: matchTime,
     })
     .then(() => {
-      console.log("data send!");
+      res.send("uploaded");
     })
     .catch((error) => {
       console.log(error);
     });
+});
+
+app.get("/getMatchesID", (req, res) => {
+  const { userId } = req.query;
+
+  db("matches")
+    .select("match_id")
+    .where({
+      user_id: userId,
+    })
+    .then((rows) => {
+      res.send(rows.map((row) => row.match_id));
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+
+app.get("/getMatchesStats", async (req, res) => {
+  try {
+    const { matches_id_queue } = req.query;
+
+    const matchIDsArray = matches_id_queue.split(",");
+    const matchIDs = matchIDsArray.map(Number);
+
+    const matchesStatsResults = [];
+
+    for (const matchID of matchIDs) {
+      const statsRows = await db("matches_stats")
+        .select("score", "moves", "final_result", "match_time")
+        .where("match_id", matchID);
+
+      const statsArray = statsRows.map((stats) => [
+        stats.score,
+        stats.moves,
+        stats.final_result,
+        stats.match_time,
+      ]);
+
+      matchesStatsResults.push(...statsArray);
+    }
+
+    res.send(matchesStatsResults);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 app.listen(3001);

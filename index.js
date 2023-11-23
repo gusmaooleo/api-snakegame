@@ -147,7 +147,8 @@ app.get("/getMatchesStats", async (req, res) => {
       matchesStatsResults.push(...statsArray);
     }
 
-    res.send(matchesStatsResults);
+    const finalQueue = matchesStatsResults.reverse();
+    res.send(finalQueue);
   } catch (error) {
     console.log(error);
   }
